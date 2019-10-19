@@ -16,16 +16,17 @@
 #include "tprint.h"
 
 
-static_assert((sizeof(wchar_t) == 2) || (sizeof(wchar_t) == 4), "error: sizeof(wchar_t) is not 4 or 2");
-
-#define DEFAULT_FONT_SIZE    18 // Default font size
-const GLubyte DEFAUL_TEXT_COLOR [] = {255, 255, 255, 255};   // Default text color
-
-void split (const std::wstring& str, wchar_t delimiter, std::vector<std::wstring> &tokens) noexcept;
-unsigned int next_p2 (unsigned int) noexcept;
-
 #define DEFAULT_WIDTHS_COUNT 1024
 #define DRAW_TEXT_MAX_STRLEN 2048
+#define DEFAULT_FONT_SIZE    18
+
+/** select one of the two values GL_UNSIGNED_INT/GL_UNSIGNED_SHORT according to the width of wchar_t */
+#define GL_CHAR_SIZE_CODE (sizeof(wchar_t) == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT)
+
+static_assert((sizeof(wchar_t) == 2) || (sizeof(wchar_t) == 4), "error: sizeof(wchar_t) is not 4 or 2");
+const GLubyte DEFAUL_TEXT_COLOR [] = {255, 255, 255, 255};   // Default text color
+void split (const std::wstring& str, wchar_t delimiter, std::vector<std::wstring> &tokens) noexcept;
+unsigned int next_p2 (unsigned int) noexcept;
 
 
 class Freetype
@@ -36,7 +37,6 @@ private:
     unsigned int screen_hight;
     unsigned int screen_width;
     GLuint ch_range;
-    GLuint gl_char_size_code;
     GLuint dl_ch_base;
     GLuint dl_pscm;
     GLuint dl_ppm;

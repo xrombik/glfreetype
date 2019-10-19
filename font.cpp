@@ -5,8 +5,6 @@
 
 Freetype::Freetype(const std::string& file_name, int font_height, float density, int dpi, float line_spacing) noexcept
 {
-    // select one of the two values GL_UNSIGNED_INT/GL_UNSIGNED_SHORT according to the width of wchar_t
-    gl_char_size_code = sizeof(wchar_t) == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
     screen_hight = viewport[3];
@@ -197,7 +195,7 @@ void Freetype::draw_text (float x, float y, const GLubyte *color, const wchar_t 
         glLoadIdentity();
         glTranslatef(x, y, 0.0f);
         unsigned int l1 = (unsigned int) wcslen (ss[i].c_str());
-        glCallLists(l1, gl_char_size_code, ss[i].c_str());
+        glCallLists(l1, GL_CHAR_SIZE_CODE, ss[i].c_str());
         glPopMatrix();
         if (l > 1)
         {
@@ -238,7 +236,7 @@ void Freetype::draw_text_rotate (float x, float y, const GLubyte* color,
         glTranslatef(x, y, 0.0f);
         glRotatef(rotate, 0.0f, 0.0f, 1.0f);
         unsigned int l1 = (unsigned int) wcslen(mystrings[i].c_str());
-        glCallLists(l1, gl_char_size_code, mystrings[i].c_str());
+        glCallLists(l1, GL_CHAR_SIZE_CODE, mystrings[i].c_str());
         glPopMatrix();
         if (l > 1)
         {
