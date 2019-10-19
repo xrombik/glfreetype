@@ -47,5 +47,6 @@ int main(int argc, char *argv[])
     /* run */
     glutMainLoop();
 
+    delete font;
     return 0;
 }

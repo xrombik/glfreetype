@@ -3,7 +3,7 @@
 // define ALPHABET in your language file
 #include "russian.h"
 
-Freetype::Freetype (const std::string& file_name, int font_height, float density, int dpi, float line_spacing) noexcept
+Freetype::Freetype(const std::string& file_name, int font_height, float density, int dpi, float line_spacing) noexcept
 {
     // select one of the two values GL_UNSIGNED_INT/GL_UNSIGNED_SHORT according to the width of wchar_t
     gl_char_size_code = sizeof(wchar_t) == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT;
