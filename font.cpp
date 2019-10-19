@@ -141,7 +141,7 @@ GLuint Freetype::get_text_width(const wchar_t *text) noexcept
     }
     unsigned int text_width = 0;
     unsigned int text_width_line = 0;
-    unsigned int l = (unsigned int) wcslen(text);
+    unsigned int l = (unsigned int) wcsnlen(text, DRAW_TEXT_MAX_STRLEN);
     for (unsigned int i = 0; i < l; ++ i)
     {
         text_width += chars_widths[text[i]];
@@ -194,7 +194,7 @@ void Freetype::draw_text (float x, float y, const GLubyte *color, const wchar_t 
         glPushMatrix();
         glLoadIdentity();
         glTranslatef(x, y, 0.0f);
-        unsigned int l1 = (unsigned int) wcslen (ss[i].c_str());
+        unsigned int l1 = (unsigned int) wcsnlen (ss[i].c_str(), DRAW_TEXT_MAX_STRLEN);
         glCallLists(l1, GL_CHAR_SIZE_CODE, ss[i].c_str());
         glPopMatrix();
         if (l > 1)
@@ -235,7 +235,7 @@ void Freetype::draw_text_rotate (float x, float y, const GLubyte* color,
         glLoadIdentity();
         glTranslatef(x, y, 0.0f);
         glRotatef(rotate, 0.0f, 0.0f, 1.0f);
-        unsigned int l1 = (unsigned int) wcslen(mystrings[i].c_str());
+        unsigned int l1 = (unsigned int) wcsnlen(mystrings[i].c_str(), DRAW_TEXT_MAX_STRLEN);
         glCallLists(l1, GL_CHAR_SIZE_CODE, mystrings[i].c_str());
         glPopMatrix();
         if (l > 1)
