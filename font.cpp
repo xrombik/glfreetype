@@ -94,6 +94,7 @@ unsigned int Freetype::make_dlist(FT_Face face, unsigned int ch) noexcept
         tprint("%s:%u:\nerror: can't get index for char code 0x%x.\n", __FILE__, __LINE__, ch);
     }
     FT_Error error = FT_Load_Glyph(face, char_index, FT_LOAD_DEFAULT);
+<<<<<<< HEAD
     if (error != 0)
     {
         tprint("%s:%u:\nerror: can't load glyph for char with index 0x%x.\n", __FILE__, __LINE__, char_index);
@@ -101,6 +102,15 @@ unsigned int Freetype::make_dlist(FT_Face face, unsigned int ch) noexcept
     error = FT_Load_Char(face, ch, FT_LOAD_RENDER);
     if (error != 0)
     {
+=======
+    if (error != 0)
+    {
+        tprint("%s:%u:\nerror: can't load glyph for char with index 0x%x.\n", __FILE__, __LINE__, char_index);
+    }
+    error = FT_Load_Char(face, ch, FT_LOAD_RENDER);
+    if (error != 0)
+    {
+>>>>>>> edb31a824ba9dffd33ff998941f48a49a600c035
         tprint("%s:%u:\nerror: symbol with code 0x%x was not loaded.\n", __FILE__, __LINE__, ch);
     }
     FT_GlyphSlot glyph;
@@ -202,7 +212,10 @@ GLuint Freetype::get_text_width(const wchar_t *text) noexcept
 void Freetype::draw_text(float x, float y, const wchar_t *format, ...) const noexcept
 {
     va_list args;
+<<<<<<< HEAD
     va_start(args, format);
+=======
+>>>>>>> edb31a824ba9dffd33ff998941f48a49a600c035
     va_draw_text(x, y, DEFAUL_TEXT_COLOR, format, args);
     va_end(args);
 }
@@ -211,7 +224,10 @@ void Freetype::draw_text(float x, float y, const wchar_t *format, ...) const noe
 void Freetype::draw_text(float x, float y, const GLubyte* color, const wchar_t *format, ...) const noexcept
 {
     va_list args;
+<<<<<<< HEAD
     va_start(args, format);
+=======
+>>>>>>> edb31a824ba9dffd33ff998941f48a49a600c035
     va_draw_text(x, y, color, format, args);
     va_end(args);
 }
