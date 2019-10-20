@@ -3,7 +3,18 @@
 // define ALPHABET in your language file
 #include "russian.h"
 
+
 Freetype::Freetype(const std::string& file_name, int font_height, float density, int dpi, float line_spacing) noexcept
+{
+    init(file_name, ALPHABET, ARRAY_SIZE(ALPHABET), font_height, density, dpi, line_spacing);
+}
+
+Freetype::Freetype(const std::string& file_name, unsigned int const* alphabet, unsigned int chars_count, int font_height, float density, int dpi, float line_spacing) noexcept
+{
+    init(file_name, alphabet, chars_count, font_height, density, dpi, line_spacing);
+}
+
+void Freetype::init(const std::string& file_name, unsigned int const* alphabet, unsigned int chars_count, int font_height, float density, int dpi, float line_spacing) noexcept
 {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -13,21 +24,26 @@ Freetype::Freetype(const std::string& file_name, int font_height, float density,
     this->density = density;
 
     ch_range = 0;
-    for (unsigned int i = 0; i < sizeof(ALPHABET) / sizeof(ALPHABET[0]); ++ i)
+    unsigned int ch_min = 0;
+    unsigned int ch_max = 0;
+    for (unsigned int i = 0; i < chars_count; ++ i)
     {
-        if (ch_range < ALPHABET[i])
-            ch_range = ALPHABET[i];
+        if (ch_max < alphabet[i])
+            ch_max = alphabet[i];
+        if (ch_min > alphabet[i])
+            ch_min = alphabet[i];
     }
-    textures = (GLuint*) std::malloc ((ch_range + 1) * sizeof(GLuint));
-    chars_widths = (unsigned int *) std::malloc ((ch_range + 1) * sizeof(unsigned int));
+    ch_range = ch_max - ch_min + 1;
+    textures = (GLuint*)malloc(ch_range * sizeof(GLuint));
+    chars_widths = (unsigned int*)malloc(ch_range * sizeof(*chars_widths));
     glGetIntegerv(GL_VIEWPORT, viewport);
-    dl_pscm = glGenLists (1);
+    dl_pscm = glGenLists(1);
     glNewList(dl_pscm, GL_COMPILE);
     glPushAttrib(GL_TRANSFORM_BIT);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
-    glOrtho(viewport[0], viewport[2], viewport[1], screen_hight, -1, 1);
+    glOrtho(viewport[0], viewport[2], viewport[1], screen_hight, -1.0, 1.0);
     glPopAttrib();
     glEnable(GL_TEXTURE_2D);
     glEndList();
@@ -45,24 +61,24 @@ Freetype::Freetype(const std::string& file_name, int font_height, float density,
     FT_Library library;
     if (FT_Init_FreeType(&library) != 0)
     {
-        tprint("%s:%u:\nerror: freetype library не работает.\n", __FILE__, __LINE__);
+        tprint("%s:%u:\nerror: freetype library coudn't be initialized.\n", __FILE__, __LINE__);
         exit(1);
     }
     FT_Face face;
     if (FT_New_Face(library, file_name.c_str(), 0, &face) != 0)
     {
         tprint("%s:%u:\nerror: font file \"%s\" couldn't be loaded\n", __FILE__, __LINE__, file_name.c_str());
-        perror("");
+        perror("FT_New_Face");
         exit(1);
     }
-
+    FT_Select_Charmap(face , FT_ENCODING_UNICODE);
     FT_Set_Char_Size(face, font_height << 6, font_height << 6, dpi, dpi);
     dl_ch_base = glGenLists(ch_range);
     glGenTextures(ch_range, textures);
     glListBase(dl_ch_base);
-    for (unsigned int i = 0; i < (sizeof(ALPHABET) / sizeof(ALPHABET[0])); ++ i)
+    for (unsigned int i = 0; i < chars_count; ++ i)
     {
-        chars_widths[ALPHABET[i]] = make_dlist(ALPHABET[i], face);
+        chars_widths[alphabet[i]] = make_dlist(face, alphabet[i]);
     }
 
     FT_Done_Face(face);
@@ -70,23 +86,32 @@ Freetype::Freetype(const std::string& file_name, int font_height, float density,
 }
 
 
-GLuint Freetype::make_dlist(unsigned int ch, FT_Face face) noexcept
+unsigned int Freetype::make_dlist(FT_Face face, unsigned int ch) noexcept
 {
-    FT_Load_Glyph(face, FT_Get_Char_Index(face, ch), FT_LOAD_DEFAULT);
-    FT_Error error = FT_Load_Char(face, ch, FT_LOAD_RENDER);
+    FT_UInt char_index = FT_Get_Char_Index(face, ch);
+    if (char_index == 0)
+    {
+        tprint("%s:%u:\nerror: can't get index for char code 0x%x.\n", __FILE__, __LINE__, ch);
+    }
+    FT_Error error = FT_Load_Glyph(face, char_index, FT_LOAD_DEFAULT);
     if (error != 0)
     {
-        tprint("%s:%u:\nsymbol with code 0x%x was not loaded.\n", __FILE__, __LINE__, ch);
+        tprint("%s:%u:\nerror: can't load glyph for char with index 0x%x.\n", __FILE__, __LINE__, char_index);
+    }
+    error = FT_Load_Char(face, ch, FT_LOAD_RENDER);
+    if (error != 0)
+    {
+        tprint("%s:%u:\nerror: symbol with code 0x%x was not loaded.\n", __FILE__, __LINE__, ch);
     }
     FT_GlyphSlot glyph;
     glyph = face->glyph;
     unsigned int width = next_p2(glyph->bitmap.width);
     unsigned int height = next_p2(glyph->bitmap.rows);
     unsigned int l =  2 * width * height;
-    GLubyte* expanded_data = (GLubyte*) std::malloc(l * sizeof(GLubyte));
+    GLubyte* expanded_data = (GLubyte*) malloc(l * sizeof(GLubyte));
     if (expanded_data == NULL)
     {
-        perror("out of memory");
+        perror("error: out of memory");
         exit(EXIT_FAILURE);
     }
 	memset(expanded_data, 0, l * sizeof(GLubyte));
@@ -94,16 +119,23 @@ GLuint Freetype::make_dlist(unsigned int ch, FT_Face face) noexcept
     {
         for(unsigned int i = 0; i < width; ++i)
         {
-            expanded_data[2 * (i + j * width)] = expanded_data[2 * (i + j * width) + 1] =
-            (i >= glyph->bitmap.width || j >= glyph->bitmap.rows) ?
-            0 : glyph->bitmap.buffer[i + glyph->bitmap.width * j];
+            expanded_data[2 * (i + j * width)]
+                = expanded_data[2 * (i + j * width) + 1]
+                = (i >= glyph->bitmap.width || j >= glyph->bitmap.rows)
+                ?
+                    0 : glyph->bitmap.buffer[i + glyph->bitmap.width * j];
         }
     }
     glBindTexture(GL_TEXTURE_2D, textures[ch]);
+    if (!glIsTexture(textures[ch]))
+    {
+        tprint("%s:%u:\nerror: %u - is not texture, char code: %u char range: %u\n", __FILE__, __LINE__, textures[ch], ch, ch_range);
+        return 0;
+    }
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_LUMINANCE_ALPHA, GL_UNSIGNED_BYTE, expanded_data);
-    std::free((void*)expanded_data);
+    free((void*)expanded_data);
 	
     float sy = float(glyph->bitmap_top) - float(glyph->bitmap.rows);
     float x = float(glyph->bitmap.width) / float(width);
@@ -128,7 +160,7 @@ GLuint Freetype::make_dlist(unsigned int ch, FT_Face face) noexcept
     GLfloat adv_x = (GLfloat)(float(face->glyph->advance.x >> 6) * density);
     glTranslatef(adv_x, 0.0f, 0.0f);
     glEndList();
-    return (GLuint) (GLfloat(adv_x) * density + 0.5f);
+    return (unsigned int) (GLfloat(adv_x) * density + 0.5f);
 }
 
 
@@ -167,7 +199,22 @@ GLuint Freetype::get_text_width(const wchar_t *text) noexcept
 }
 
 
-void Freetype::draw_text (float x, float y, const GLubyte *color, const wchar_t *format, ...) const noexcept
+void Freetype::draw_text(float x, float y, const wchar_t *format, ...) const noexcept
+{
+    va_list args;
+    va_draw_text(x, y, DEFAUL_TEXT_COLOR, format, args);
+    va_end(args);
+}
+
+
+void Freetype::draw_text(float x, float y, const GLubyte* color, const wchar_t *format, ...) const noexcept
+{
+    va_list args;
+    va_draw_text(x, y, color, format, args);
+    va_end(args);
+}
+
+void Freetype::va_draw_text (float x, float y, const GLubyte *color, const wchar_t *format, va_list args) const noexcept
 {
     if (!format) return;
 
@@ -178,10 +225,7 @@ void Freetype::draw_text (float x, float y, const GLubyte *color, const wchar_t 
     wchar_t str [DRAW_TEXT_MAX_STRLEN];
     str[0] = L'\0';
 
-    va_list args;
-    va_start(args, format);
-    vswprintf(str, sizeof(str) / sizeof(str[0]), format, args);
-    va_end(args);
+    vswprintf(str, ARRAY_SIZE(str), format, args);
 
     std::vector<std::wstring> ss;
     split(str, L'\n', ss);
@@ -220,7 +264,7 @@ void Freetype::draw_text_rotate (float x, float y, const GLubyte* color,
     va_list args;
 
     va_start(args, format);
-    vswprintf(str, sizeof(str) / sizeof(str[0]), format, args);
+    vswprintf(str, ARRAY_SIZE(str), format, args);
     va_end(args);
 
     std::vector<std::wstring> mystrings;
@@ -243,7 +287,6 @@ void Freetype::draw_text_rotate (float x, float y, const GLubyte* color,
             y -= height;
         }
     }
-
     glCallList(dl_ppm);
 }
 
@@ -255,8 +298,8 @@ Freetype::~Freetype(void) noexcept
     glDeleteLists(dl_pscm, 1);
     glDeleteLists(dl_ch_base, ch_range);
     text_widths.clear();
-    std::free(textures);
-    std::free(chars_widths);
+    free(textures);
+    free(chars_widths);
 }
 
 
