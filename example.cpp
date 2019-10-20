@@ -3,19 +3,25 @@
 
 
 Freetype* font = NULL;
+Freetype* font_china = NULL;
 
+// chinese chars (just add any, that not present here):
+unsigned int const alphabet_china [] = {L'你', L'好', L'的', L'人', L'!'};
 
 void on_display (void)
 {
    /* draw begin */
-   glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-   glLoadIdentity ();
+   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   glLoadIdentity();
 
    /* glfreetype invoke */
-   font->draw_text(0.0f, 0.0f, DEFAUL_TEXT_COLOR, L"Hellow, world! Эй, вы!");
+   font->draw_text(-0.5f, 0.0f, L"Hellow, world!\nДобро пожаловать!");
+
+   /* glfreetype invoke for chinise */
+   font_china->draw_text(-0.5f, -0.35f, L"你好的人!");
 
    /* draw end */
-   glutSwapBuffers ();
+   glutSwapBuffers();
 }
 
 
@@ -24,7 +30,7 @@ int main(int argc, char *argv[])
     /* setup GLUT */
     glutInit (&argc, argv);
     glutInitContextVersion(1, 3);
-    glutInitWindowSize(640, 480);
+    glutInitWindowSize(480, 340);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     glutCreateWindow("glfreetype example");
     glutSetOption(GLUT_ACTION_ON_WINDOW_CLOSE, GLUT_ACTION_GLUTMAINLOOP_RETURNS);
@@ -44,9 +50,13 @@ int main(int argc, char *argv[])
     /* glfreetype invoke */
     font = new Freetype("LiberationSans-Regular.ttf");
 
+    /* glfreetype invoke for chinise */
+    font_china = new Freetype("wt021.ttf", alphabet_china, ARRAY_SIZE(alphabet_china));
+
     /* run */
     glutMainLoop();
 
     delete font;
+    delete font_china;
     return 0;
 }

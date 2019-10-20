@@ -12,6 +12,7 @@
 #include <wchar.h>
 #include <cwchar>
 #include <sstream>
+#include <stdlib.h>
 
 #include "tprint.h"
 
@@ -22,6 +23,9 @@
 
 /** select one of the two values GL_UNSIGNED_INT/GL_UNSIGNED_SHORT according to the width of wchar_t */
 #define GL_CHAR_SIZE_CODE (sizeof(wchar_t) == 4 ? GL_UNSIGNED_INT : GL_UNSIGNED_SHORT)
+
+/** ... */
+#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
 
 static_assert((sizeof(wchar_t) == 2) || (sizeof(wchar_t) == 4), "error: sizeof(wchar_t) is not 4 or 2");
 const GLubyte DEFAUL_TEXT_COLOR [] = {255, 255, 255, 255};   // Default text color
@@ -44,16 +48,17 @@ private:
     std::unordered_map <const char*, std::vector <GLuint>> ord_map_dict;
     std::unordered_map <const wchar_t*, GLuint> text_widths;
     float density;
-    GLuint make_dlist (unsigned int ch, FT_Face face) noexcept;
+    unsigned int make_dlist(FT_Face face, unsigned int ch) noexcept;
+    void va_draw_text (float, float, const GLubyte *color, const wchar_t *format, va_list argp) const noexcept;
+    void init(const std::string& file_name, unsigned int const *alphabet, unsigned int alphabet_count, int font_height=DEFAULT_FONT_SIZE, float density=1.0f, int dpi=96, float line_spacing=1.5f) noexcept;
 public:
-    Freetype(const std::string& file_name, int font_height=DEFAULT_FONT_SIZE,
-        float density=1.0f, int dpi=96, float line_spacing=1.5f) noexcept;
+    void draw_text(float x, float y, const wchar_t *format, ...) const noexcept;
+    void draw_text(float x, float y, const GLubyte *color, const wchar_t *format, ...) const noexcept;
+    Freetype(const std::string& file_name, int font_height=DEFAULT_FONT_SIZE, float density=1.0f, int dpi=96, float line_spacing=1.5f) noexcept;
+    Freetype(const std::string& file_name, unsigned int const *alphabet, unsigned int alphabet_count, int font_height=DEFAULT_FONT_SIZE, float density=1.0f, int dpi=96, float line_spacing=1.5f) noexcept;
     ~Freetype(void) noexcept;
-    GLuint get_text_width(const wchar_t *) noexcept;
-	/** use coordinates in range -1.0 ... 1.0 */
-    void draw_text (float, float, const GLubyte *color, const wchar_t *format, ...) const noexcept;
-	/** use coordinates in range -1.0 ... 1.0 */
-    void draw_text_rotate (float, float, const GLubyte *color, float rotate, const wchar_t *format, ...) const noexcept;
+    GLuint get_text_width(const wchar_t*) noexcept;
+    void draw_text_rotate(float, float, const GLubyte *color, float rotate, const wchar_t *format, ...) const noexcept;
 };
 
 
