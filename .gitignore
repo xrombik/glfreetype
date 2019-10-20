@@ -1,6 +1,10 @@
 *.user
-build/*
-build
 cmake/CMakeLists.txt.*
 *.cpp.autosave.*
 *.h.autosave.*
+*.cbp
+CMakeFiles/
+cmake_install.cmake
+glfreetype
+CMakeCache.txt
+Makefile
