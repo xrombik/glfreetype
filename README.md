@@ -3,7 +3,11 @@ glfreetype [![Codacy Badge](https://api.codacy.com/project/badge/Grade/69234123e
 
 Freetype library C++ binding for OpenGL
 
+|Platform|Build status|
+|--------|--------|
+|Ubuntu Xenial|[![Build Status](https://travis-ci.com/xrombik/glfreetype.svg?branch=master)](https://travis-ci.com/xrombik/glfreetype)|
 
-[![Build Status](https://travis-ci.com/xrombik/glfreetype.svg?branch=master)](https://travis-ci.com/xrombik/glfreetype)
+
+
 
 ![](https://github.com/xrombik/glfreetype/blob/master/glfreetype.png)
