@@ -2,6 +2,6 @@ language: cpp
 dist: xenial
 
 before_install:
-  - sudo apt-get --version
+  - sudo apt-get install libgl1-mesa-dev
 script:
   - cmake .
