@@ -62,14 +62,14 @@ void Freetype::init(const std::string& file_name, unsigned int const* alphabet, 
     if (FT_Init_FreeType(&library) != 0)
     {
         tprint("%s:%u:\nerror: freetype library coudn't be initialized.\n", __FILE__, __LINE__);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     FT_Face face;
     if (FT_New_Face(library, file_name.c_str(), 0, &face) != 0)
     {
         tprint("%s:%u:\nerror: font file \"%s\" couldn't be loaded\n", __FILE__, __LINE__, file_name.c_str());
         perror("FT_New_Face");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     FT_Select_Charmap(face , FT_ENCODING_UNICODE);
     FT_Set_Char_Size(face, font_height << 6, font_height << 6, dpi, dpi);

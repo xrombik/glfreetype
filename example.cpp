@@ -58,5 +58,5 @@ int main(int argc, char *argv[])
 
     delete font;
     delete font_china;
-    return 0;
+    return EXIT_SUCCESS;
 }
