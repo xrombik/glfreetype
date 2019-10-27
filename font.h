@@ -12,7 +12,6 @@
 #include <wchar.h>
 #include <cwchar>
 #include <sstream>
-#include <stdlib.h>
 
 #include "tprint.h"
 
