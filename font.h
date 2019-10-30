@@ -44,8 +44,7 @@ private:
     GLuint dl_pscm;
     GLuint dl_ppm;
     GLuint *textures;
-    std::unordered_map <const char*, std::vector <GLuint>> ord_map_dict;
-    std::unordered_map <const wchar_t*, GLuint> text_widths;
+    std::unordered_map <std::wstring, GLuint> text_widths;
     float density;
     unsigned int make_dlist(FT_Face face, unsigned int ch) noexcept;
     void va_draw_text (float, float, const GLubyte *color, const wchar_t *format, va_list argp) const noexcept;

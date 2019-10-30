@@ -160,7 +160,7 @@ unsigned int Freetype::make_dlist(FT_Face face, unsigned int ch) noexcept
     GLfloat adv_x = (GLfloat)(float(face->glyph->advance.x >> 6) * density);
     glTranslatef(adv_x, 0.0f, 0.0f);
     glEndList();
-    return (unsigned int) (GLfloat(adv_x) * density + 0.5f);
+    return (unsigned int) (GLfloat(adv_x) + 0.5f);
 }
 
 
