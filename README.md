@@ -1,5 +1,4 @@
-glfreetype [![Codacy Badge](https://api.codacy.com/project/badge/Grade/69234123e1f446cd90b3a05866da851e)](https://www.codacy.com/manual/xrombik/glfreetype?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=xrombik/glfreetype&amp;utm_campaign=Badge_Grade)
-==========================
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/a3f110ede4f848e28004c78943839844)](https://www.codacy.com/gh/xrombik/glfreetype/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=xrombik/glfreetype&amp;utm_campaign=Badge_Grade)
 
 Freetype library C++ binding for OpenGL
 
