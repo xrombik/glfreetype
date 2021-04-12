@@ -7,7 +7,4 @@ Freetype library C++ binding for OpenGL
 |--------|--------|
 |Ubuntu Xenial|[![Build Status](https://travis-ci.com/xrombik/glfreetype.svg?branch=master)](https://travis-ci.com/xrombik/glfreetype)|
 
-
-
-
 ![](https://github.com/xrombik/glfreetype/blob/master/glfreetype.png)
